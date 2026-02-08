@@ -1,7 +1,12 @@
 package com.delivera.controller;
 
+import com.delivera.dto.RegisterRequest;
+import com.delivera.dto.RegisterResponse;
 import com.delivera.repository.UserRepository;
+import com.delivera.service.AuthService;
 import com.delivera.service.JwtService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +21,16 @@ public class AuthController {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuthService authService;
 
     public AuthController(UserRepository userRepository,
                           BCryptPasswordEncoder passwordEncoder,
-                          JwtService jwtService) {
+                          JwtService jwtService,
+                          AuthService authService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.authService = authService;
     }
 
     @PostMapping("/login")
@@ -37,5 +45,11 @@ public class AuthController {
                     return ResponseEntity.ok(Map.of("token", token, "email", user.getEmail()));
                 })
                 .orElse(ResponseEntity.status(401).body(Map.of("message", "Credenciales incorrectas")));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
+        RegisterResponse response = authService.register(request.email(), request.password());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

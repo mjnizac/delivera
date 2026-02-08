@@ -6,6 +6,11 @@ const password = ref('')
 const error = ref('')
 const loggedInAs = ref('')
 
+function handleLogout() {
+  localStorage.removeItem('token')
+  loggedInAs.value = ''
+}
+
 async function handleLogin() {
   error.value = ''
   try {
@@ -31,6 +36,7 @@ async function handleLogin() {
   <div class="login-page">
     <div v-if="loggedInAs" class="welcome">
       <h2>Bienvenido, {{ loggedInAs }}</h2>
+      <button @click="handleLogout">Cerrar sesión</button>
     </div>
     <form v-else @submit.prevent="handleLogin">
       <h1>Delivera</h1>
